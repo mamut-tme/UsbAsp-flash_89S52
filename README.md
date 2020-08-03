@@ -1,6 +1,4 @@
-# UsbAsp-flash
-Альтернативная прошивка  и программа для UsbAsp позволяющая программировать флеш память по протоколам SPI, I2C, MicroWire.
-Обсуждение на форуме easyelectronics.ru http://forum.easyelectronics.ru/viewtopic.php?f=17&t=10947
-
-Alternative firmware and UsbAsp program allow you to program flash memory on the protocols spi, I2C, MicroWire.
-Discussion on the forum easyelectronics.ru http://forum.easyelectronics.ru/viewtopic.php?f=17&t=10947
+# UsbAsp-flash_89S52
+This is a firmware for the UsbAsp programmer based on 
+- UsbAsp-flash (https://github.com/nofeletru/UsbAsp-flash) containing the possibility to read/write I2C, SPI and Microwire memories and possibly other devices. An additional change I have found is the possibility to use 3 MHz SCK clock for programming AVRs, not supported by AVRDUDE.
+- usbasp.2012-07-20_89s52 by Miles McCoo (https://blog.mmccoo.com/2012/07/21/using-usbasp-and-avrdude-to-program-89s52/) containing the possibility to write AT89S51 and AT89S52 8051 MCUs. 
