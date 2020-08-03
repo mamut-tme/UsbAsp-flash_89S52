@@ -344,7 +344,7 @@ usbMsgLen_t usbFunctionSetup(uchar data[8]) {
 	} else if (data[1] == USBASP_FUNC_GETCAPABILITIES) {
 		replyBuffer[0] = USBASP_CAP_0_TPI;
 		replyBuffer[1] = 0;
-		replyBuffer[2] = 0;
+		replyBuffer[2] = USBASP_CAP_2_S5x;
 		replyBuffer[3] = USBASP_CAP_3_FLASH;
 		len = 4;
 	}

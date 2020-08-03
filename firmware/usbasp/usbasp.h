@@ -46,6 +46,7 @@
 
 /* USBASP capabilities */
 #define USBASP_CAP_0_TPI    0x01
+#define USBASP_CAP_2_S5x    0x01
 #define USBASP_CAP_3_FLASH	0x01
 
 /* programming state */
