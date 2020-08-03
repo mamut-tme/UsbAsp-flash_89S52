@@ -21,6 +21,8 @@ uchar sck_spcr;
 uchar sck_spsr;
 uchar isp_hiaddr;
 
+uchar (*ispTransmit)(uchar);
+
 void spiHWenable() {
 	SPCR = sck_spcr;
 	SPSR = sck_spsr;
@@ -37,7 +39,6 @@ void ispSetSCKOption(uchar option) {
 		sck_sw_delay = 1;	/* force RST#/SCK pulse for 320us */
 
 		switch (option) {
-			
 		case USBASP_ISP_SCK_3000:
 			/* enable SPI, master, 3MHz, XTAL/4 */
 			sck_spcr = (1 << SPE) | (1 << MSTR);

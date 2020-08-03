@@ -8,13 +8,12 @@
  * Creation Date..: 2005-02-23
  * Last change....: 2009-02-28
  */
+#ifndef uchar
+#define	uchar unsigned char
+#endif
 
 #ifndef __isp_h_included__
 #define	__isp_h_included__
-
-#ifndef uchar
-#define	uchar	unsigned char
-#endif
 
 #define	ISP_OUT   PORTB
 #define ISP_IN    PINB
@@ -61,7 +60,7 @@ uchar ispReadFlash(unsigned long address);
 uchar ispWriteEEPROM(unsigned int address, uchar data);
 
 /* pointer to sw or hw transmit function */
-uchar (*ispTransmit)(uchar);
+extern uchar (*ispTransmit)(uchar);
 
 /* set SCK speed. call before ispConnect! */
 void ispSetSCKOption(uchar sckoption);

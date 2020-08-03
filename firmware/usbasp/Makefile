@@ -39,7 +39,7 @@ help:
 
 COMPILE = avr-gcc -Wall -Os -Iusbdrv -I. -mmcu=$(TARGET) # -DDEBUG_LEVEL=2
 
-OBJECTS = usbdrv/usbdrv.o usbdrv/usbdrvasm.o usbdrv/oddebug.o isp.o clock.o tpi.o main.o i2c.o microwire.o
+OBJECTS = usbdrv/usbdrv.o usbdrv/usbdrvasm.o usbdrv/oddebug.o clock.o main.o isp.o tpi.o i2c.o microwire.o 
 
 .c.o:
 	$(COMPILE) -c $< -o $@
@@ -65,6 +65,9 @@ main.bin:	$(OBJECTS)
 main.hex:	main.bin
 	rm -f main.hex main.eep.hex
 	avr-objcopy -j .text -j .data -O ihex main.bin main.hex
+	avr-size -A main.bin
+	avr-size -C --mcu=$(TARGET) main.bin
+
 #	./checksize main.bin
 # do the checksize script as our last action to allow successful compilation
 # on Windows with WinAVR where the Unix commands will fail.

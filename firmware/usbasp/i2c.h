@@ -1,4 +1,5 @@
-
+#ifndef __i2c_h_included__
+#define	__i2c_h_included__
 #define I2C_DELAY 5
 
 #define I2C_READ 1
@@ -14,3 +15,4 @@ void i2c_stop();
 unsigned char  i2c_send_byte(unsigned char  byte);
 unsigned char  i2c_read_byte(unsigned char  ack);
 unsigned char i2c_address(unsigned char address, unsigned char rw);
+#endif /* __i2c_h_included__ */

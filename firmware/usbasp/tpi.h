@@ -1,7 +1,7 @@
-/**
+Ôªø/**
  * \brief Header for tpi
  * \file tpi.h
- * \author S≥awomir Fraú
+ * \author S≈Çawomir Fra≈õ
  */
 #ifndef __TPI_H__
 #define __TPI_H__

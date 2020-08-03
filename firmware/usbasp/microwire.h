@@ -1,3 +1,5 @@
+#ifndef __microwire_h_included__
+#define	__microwire_h_included__
 //Functions for sw microwire interface
 void mwStart();
 
@@ -8,3 +10,4 @@ unsigned char mwReadByte();
 void mwEnd();
 
 uchar mwBusy();
+#endif /* __microwire_h_included__ */
