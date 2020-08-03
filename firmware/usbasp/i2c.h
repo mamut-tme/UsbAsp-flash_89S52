@@ -1,3 +1,13 @@
+/*
+ * i2c.h - part of USBasp
+ *
+ * Autor..........: Alexander 'nofeletru'
+ * Description....: Provides functions for communication/programming
+ *                  over I2C interface
+ * Licence........: unknown GPLv2?)
+
+ */
+
 #ifndef __i2c_h_included__
 #define	__i2c_h_included__
 #define I2C_DELAY 5

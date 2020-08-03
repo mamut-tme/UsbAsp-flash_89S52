@@ -1,3 +1,13 @@
+/*
+ * microwire.c - part of USBasp
+ *
+ * Autor..........: Alexander 'nofeletru'
+ * Description....: Provides functions for communication/programming
+ *                  over microwire interface
+ * Licence........: unknown GPLv2?)
+
+ */
+
 #include <avr/io.h>
 #include "clock.h"
 #include <util/delay.h>
@@ -92,7 +102,7 @@ uchar mwBusy()
 	else
 	{
 		CS_LOW();
-		return(1); //Линия занята
+		return(1); //line busy
 	};
 }
 	

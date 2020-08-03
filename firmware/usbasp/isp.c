@@ -2,11 +2,13 @@
  * isp.c - part of USBasp
  *
  * Autor..........: Thomas Fischl <tfischl@gmx.de>
+ *                  Alexander 'nofeletru'
+ *                  Marcin 'mamut-tme'
  * Description....: Provides functions for communication/programming
  *                  over ISP interface
  * Licence........: GNU GPL v2 (see Readme.txt)
  * Creation Date..: 2005-02-23
- * Last change....: 2010-01-19
+ * Last change....: 2020-08-03
  */
 
 #include <avr/io.h>
@@ -39,6 +41,11 @@ void ispSetSCKOption(uchar option) {
 		sck_sw_delay = 1;	/* force RST#/SCK pulse for 320us */
 
 		switch (option) {
+		case USBASP_ISP_SCK_6000:
+			/* enable SPI, master, 6MHz, XTAL/2 */
+			sck_spcr = (1 << SPE) | (1 << MSTR);
+			sck_spsr = (1 << SPI2X);
+			break;
 		case USBASP_ISP_SCK_3000:
 			/* enable SPI, master, 3MHz, XTAL/4 */
 			sck_spcr = (1 << SPE) | (1 << MSTR);

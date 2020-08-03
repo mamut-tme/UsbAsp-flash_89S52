@@ -2,11 +2,12 @@
  * USBasp - USB in-circuit programmer for Atmel AVR controllers
  *
  * Thomas Fischl <tfischl@gmx.de>
+ * Alexander 'nofeletru'
  *
  * License........: GNU GPL v2 (see Readme.txt)
  * Target.........: ATMega8 at 12 MHz
  * Creation Date..: 2005-02-20
- * Last change....: 2009-02-28
+ * Last change....: 2017-10-02
  *
  * PC2 SCK speed option.
  * GND  -> slow (8khz SCK),
@@ -80,14 +81,14 @@ usbMsgLen_t usbFunctionSetup(uchar data[8]) {
 	} else if (data[1] == USBASP_FUNC_SPI_READ) {
 		CS_LOW();
 		spi_cs_hi = data[2]; //
-		prog_nbytes = (data[7] << 8) | data[6]; //Длинна буфера данных
+		prog_nbytes = (data[7] << 8) | data[6]; //data buffer length
 		prog_state = PROG_STATE_SPI_READ;
 		len = USB_NO_MSG;
 		
 	} else if (data[1] == USBASP_FUNC_SPI_WRITE) {
 		CS_LOW();
 		spi_cs_hi = data[2]; //
-		prog_nbytes = (data[7] << 8) | data[6]; //Длинна буфера данных
+		prog_nbytes = (data[7] << 8) | data[6]; //data buffer length
 		prog_state = PROG_STATE_SPI_WRITE;
 		len = USB_NO_MSG;
 
@@ -108,22 +109,22 @@ usbMsgLen_t usbFunctionSetup(uchar data[8]) {
 			
 	} else if (data[1] == USBASP_FUNC_I2C_READ) {
 		i2c_start();
-		i2c_address(data[2], I2C_WRITE); //Адрес устройства/памяти
-		if (data[3] == 2) {i2c_send_byte(data[5]);}; //1 байт адреса (hi)
-		if (data[3] > 0) {i2c_send_byte(data[4]);}; //2 (lo)
+		i2c_address(data[2], I2C_WRITE); //Device address
+		if (data[3] == 2) {i2c_send_byte(data[5]);}; //HI byte of register/memory address
+		if (data[3] > 0) {i2c_send_byte(data[4]);}; //LO
 		i2c_start_rep();
 		i2c_address(data[2], I2C_READ);
-		prog_nbytes = (data[7] << 8) | data[6]; //Размер куска данных
+		prog_nbytes = (data[7] << 8) | data[6]; //data length
 		prog_state = PROG_STATE_I2C_READ;
 		len = USB_NO_MSG;
 
 
 	} else if (data[1] == USBASP_FUNC_I2C_WRITE) {
 		i2c_start();
-		i2c_address(data[2], I2C_WRITE); //Адрес устройства/памяти
-		if (data[3] == 2) {i2c_send_byte(data[5]);}; //1 байт адреса (hi)
-		if (data[3] > 0) {i2c_send_byte(data[4]);}; //2 (lo)
-		prog_nbytes = (data[7] << 8) | data[6]; //Размер страницы
+		i2c_address(data[2], I2C_WRITE); //Device address
+		if (data[3] == 2) {i2c_send_byte(data[5]);}; //HI byte of register/memory address
+		if (data[3] > 0) {i2c_send_byte(data[4]);}; //LO
+		prog_nbytes = (data[7] << 8) | data[6]; //data length
 		prog_state = PROG_STATE_I2C_WRITE;
 		len = USB_NO_MSG;
 		
@@ -132,21 +133,21 @@ usbMsgLen_t usbFunctionSetup(uchar data[8]) {
 	} else if (data[1] == USBASP_FUNC_MW_WRITE) {
 		mwStart();
 		
-		mw_addr = (data[3] << 8) | data[2]; //адрес (value)
-		//data[4] lo(index)= сколько бит передавать
-		//data[5] //опкод hi(index)
+		mw_addr = (data[3] << 8) | data[2]; //address (value)
+		//data[4] LO(index) amount of bits to be transmitted
+		//data[5] //opkode HI(index)
 		
 		mwSendData((data[5] << (data[4]-2)) | mw_addr, data[4]);
 	
-		prog_nbytes = (data[7] << 8) | data[6]; //Размер куска данных
+		prog_nbytes = (data[7] << 8) | data[6]; //data length
 		prog_state = PROG_STATE_MW_WRITE;
 		len = USB_NO_MSG;
 		
 	} else if (data[1] == USBASP_FUNC_MW_READ) {
 		mwStart();
 		
-		mwSendData((data[3] << 8) | data[2], data[4]); //пакет 16-бит(value) lo(index)=сколько бит передавать
-		prog_nbytes = (data[7] << 8) | data[6]; //Размер куска данных
+		mwSendData((data[3] << 8) | data[2], data[4]); //16-bit packet(value) LO(index)=amount of bits to be transmitted
+		prog_nbytes = (data[7] << 8) | data[6]; //data length
 		prog_state = PROG_STATE_MW_READ;
 		len = USB_NO_MSG;
 	
@@ -154,7 +155,7 @@ usbMsgLen_t usbFunctionSetup(uchar data[8]) {
 	} else if (data[1] == USBASP_FUNC_MW_BUSY) {
 		if (mwBusy() == 1) 
 		{
-			replyBuffer[0] = 1; //Линия занята
+			replyBuffer[0] = 1; //line busy
 		}
 		else
 		{

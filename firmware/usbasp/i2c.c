@@ -1,4 +1,12 @@
+/*
+ * i2c.c - part of USBasp
+ *
+ * Autor..........: Alexander 'nofeletru'
+ * Description....: Provides functions for communication/programming
+ *                  over I2C interface
+ * Licence........: unknown GPLv2?
 
+ */
 #include <avr/io.h>
 #include "clock.h"
 #include <util/delay.h>
@@ -7,15 +15,15 @@
 #include "i2c.h"
 #include "isp.h"
 
-#define I2C_SDA_PIN           ISP_MISO                       //ëèíèÿ SDA
-#define I2C_SCL_PIN           ISP_MOSI                      //ëèíèÿ SCL
+#define I2C_SDA_PIN           ISP_MISO                       //SDA pin
+#define I2C_SCL_PIN           ISP_MOSI                      //SCL pin
 
-#define I2C_SDA_PORT_READ     ISP_IN                        //ïîðò âõîäà
+#define I2C_SDA_PORT_READ     ISP_IN                        //in port
 
-#define I2C_SDA_PORT_DIR      ISP_DDR                       //ïîðò íàïðàâëåíèÿ
-#define I2C_SCL_PORT_DIR      ISP_DDR                       //ïîðò íàïðàâëåíèÿ
-#define I2C_SDA_PORT          ISP_OUT                       //ïîðò âûõîäà
-#define I2C_SCL_PORT          ISP_OUT                       //ïîðò âûõîäà
+#define I2C_SDA_PORT_DIR      ISP_DDR                       //SDA DDR reg
+#define I2C_SCL_PORT_DIR      ISP_DDR                       //SCL DDR reg
+#define I2C_SDA_PORT          ISP_OUT                       //output port of SDA
+#define I2C_SCL_PORT          ISP_OUT                       //output port of SCL
 
 #define SET(reg, bit) (reg |= (1 << bit))
 #define CLR(reg, bit) (reg &= ~(1 << bit))
