@@ -3,11 +3,12 @@
  *
  * Autor..........: Thomas Fischl <tfischl@gmx.de>
  *                  Alexander 'nofeletru'
+ *                  Miles McCoo merged by Marcin 'mamut-tme'
  * Description....: Provides functions for communication/programming
  *                  over ISP interface
  * Licence........: GNU GPL v2 (see Readme.txt)
  * Creation Date..: 2005-02-23
- * Last change....: 2017-09-04
+ * Last change....: 2020-08-03
  */
 #ifndef uchar
 #define	uchar unsigned char
@@ -26,6 +27,11 @@
 
 #define CS_LOW()	ISP_OUT &= ~(1 << ISP_RST); /* RST low */
 #define CS_HI()		ISP_OUT |= (1 << ISP_RST); /* RST high */
+
+#define ATM 0x00	/* AVR mode */
+#define S5x 0xFF	/* AT89S51/AT89S52 mode */
+
+extern unsigned char chip;
 
 /* Prepare connection to target device */
 void ispConnect();

@@ -24,6 +24,7 @@ uchar sck_spsr;
 uchar isp_hiaddr;
 
 uchar (*ispTransmit)(uchar);
+unsigned char chip;		/* AVR or S5x chip type */
 
 void spiHWenable() {
 	SPCR = sck_spcr;
@@ -73,7 +74,10 @@ void ispSetSCKOption(uchar option) {
 			sck_spcr = (1 << SPE) | (1 << MSTR) | (1 << SPR1) | (1 << SPR0);
 			break;
 		}
-
+		if (chip == S5x) {		/* only soft SPI for S5x for now */
+			ispTransmit = ispTransmit_sw;	/* maybe move this section below? as independant from user setting*/
+			sck_sw_delay = 2;
+		}
 	} else {
 		ispTransmit = ispTransmit_sw;
 		switch (option) {
@@ -84,27 +88,21 @@ void ispSetSCKOption(uchar option) {
 			break;
 		case USBASP_ISP_SCK_16:
 			sck_sw_delay = 6;
-
 			break;
 		case USBASP_ISP_SCK_8:
 			sck_sw_delay = 12;
-
 			break;
 		case USBASP_ISP_SCK_4:
 			sck_sw_delay = 24;
-
 			break;
 		case USBASP_ISP_SCK_2:
 			sck_sw_delay = 48;
-
 			break;
 		case USBASP_ISP_SCK_1:
 			sck_sw_delay = 96;
-
 			break;
 		case USBASP_ISP_SCK_0_5:
 			sck_sw_delay = 192;
-
 			break;
 		}
 	}
@@ -122,17 +120,28 @@ void ispConnect() {
 	/* all ISP pins are inputs before */
 	/* now set output pins */
 	ISP_DDR |= (1 << ISP_RST) | (1 << ISP_SCK) | (1 << ISP_MOSI);
+	if(chip==ATM){	/* AVR */
+		/* reset device */
+		ISP_OUT &= ~(1 << ISP_RST); /* RST low */
+		ISP_OUT &= ~(1 << ISP_SCK); /* SCK low */
+	
+		/* positive reset pulse > 2 SCK (target) */
+		ispDelay();
+		ISP_OUT |= (1 << ISP_RST); /* RST high */
+		ispDelay();
+		ISP_OUT &= ~(1 << ISP_RST); /* RST low */
+	} else {	/* S5x */
+	  /* reset device reversed polarity than AVR*/
+	  ISP_OUT |= (1 << ISP_RST);   /* RST high */
+	  ISP_OUT &= ~(1 << ISP_SCK);   /* SCK low */
 
-	/* reset device */
-	ISP_OUT &= ~(1 << ISP_RST); /* RST low */
-	ISP_OUT &= ~(1 << ISP_SCK); /* SCK low */
-
-	/* positive reset pulse > 2 SCK (target) */
-	ispDelay();
-	ISP_OUT |= (1 << ISP_RST); /* RST high */
-	ispDelay();
-	ISP_OUT &= ~(1 << ISP_RST); /* RST low */
-
+	  /* positive reset pulse > 2 SCK (target) */
+	  ispDelay();
+	  ISP_OUT &= ~(1 << ISP_RST);    /* RST low */
+	  ispDelay();                
+	  ISP_OUT |= (1 << ISP_RST);   /* RST high */
+	  ispDelay();
+	}
 	if (ispTransmit == ispTransmit_hw) {
 		spiHWenable();
 	}
@@ -145,7 +154,7 @@ void isp25Connect() {
 	/* all ISP pins are inputs before */
 	/* now set output pins */
 	ISP_DDR |= (1 << ISP_RST) | (1 << ISP_SCK) | (1 << ISP_MOSI);
-	
+	chip=ATM;	/* not sure if necessary */
 	if (ispTransmit == ispTransmit_hw) {
 		spiHWenable();
 	}
@@ -206,16 +215,16 @@ uchar ispTransmit_hw(uchar send_byte) {
 uchar ispEnterProgrammingMode() {
 	uchar check;
 	uchar count = 32;
-
+	chip=ATM;	/* routine for AVR */
+	ispConnect();
 	while (count--) {
 		ispTransmit(0xAC);
 		ispTransmit(0x53);
 		check = ispTransmit(0);
 		ispTransmit(0);
 
-		if (check == 0x53) {
+		if (check == 0x53)
 			return 0;
-		}
 
 		spiHWdisable();
 
@@ -226,10 +235,33 @@ uchar ispEnterProgrammingMode() {
 		ISP_OUT &= ~(1 << ISP_RST); /* RST low */
 		ispDelay();
 
-		if (ispTransmit == ispTransmit_hw) {
+		if (ispTransmit == ispTransmit_hw)
 			spiHWenable();
-		}
 
+	}
+	
+	count=16;
+	chip=S5x;	/* routine for S5x */
+	if(ispTransmit==ispTransmit_hw){
+	  spiHWdisable();
+	  //ispTransmit=ispTransmit_5x;
+	} 
+	ispTransmit = ispTransmit_sw;
+	sck_sw_delay = 2;
+	ispConnect();
+	while(count--){
+		ispTransmit(0xAC);	/* different init sequence for S5x*/
+		ispTransmit(0x53);
+		ispTransmit(0);
+		check=ispTransmit(0);
+		if(check==0x69)
+			return 0;		/* Device responded */
+			
+		/* pulse SCK */
+		ISP_OUT|=(1<<ISP_SCK);     /* SCK high */
+		ispDelay();
+		ISP_OUT&= ~(1<<ISP_SCK);    /* SCK low */
+		ispDelay();  
 	}
 
 	return 1; /* error: device dosn't answer */
@@ -256,10 +288,16 @@ static void ispUpdateExtended(unsigned long address)
 uchar ispReadFlash(unsigned long address) {
 
 	ispUpdateExtended(address);
-
-	ispTransmit(0x20 | ((address & 1) << 3));
-	ispTransmit(address >> 9);
-	ispTransmit(address >> 1);
+	
+	if(chip==ATM){	/* AVR */
+		ispTransmit(0x20 | ((address & 1) << 3));
+		ispTransmit(address >> 9);
+		ispTransmit(address >> 1);
+	} else {	/* S51x different bit arrangement */
+		ispTransmit(0x20);
+		ispTransmit(address>>8);
+		ispTransmit(address);
+	}
 	return ispTransmit(0);
 }
 
@@ -271,38 +309,43 @@ uchar ispWriteFlash(unsigned long address, uchar data, uchar pollmode) {
 	 }
 	 */
 
-	ispUpdateExtended(address);
-
-	ispTransmit(0x40 | ((address & 1) << 3));
-	ispTransmit(address >> 9);
-	ispTransmit(address >> 1);
-	ispTransmit(data);
-
-	if (pollmode == 0)
-		return 0;
-
-	if (data == 0x7F) {
-		clockWait(15); /* wait 4,8 ms */
-		return 0;
-	} else {
-
-		/* polling flash */
-		uchar retries = 30;
-		uint8_t starttime = TIMERVALUE;
-		while (retries != 0) {
-			if (ispReadFlash(address) != 0x7F) {
-				return 0;
-			};
-
-			if ((uint8_t) (TIMERVALUE - starttime) > CLOCK_T_320us) {
-				starttime = TIMERVALUE;
-				retries--;
+	if(chip==ATM){	/* AVR */
+		ispUpdateExtended(address);
+	
+		ispTransmit(0x40 | ((address & 1) << 3));
+		ispTransmit(address >> 9);
+		ispTransmit(address >> 1);
+		ispTransmit(data);
+	
+		if (pollmode == 0)
+			return 0;
+	
+		if (data == 0x7F) {
+			clockWait(15); /* wait 4,8 ms */
+			return 0;
+		} else {
+			/* polling flash */
+			uchar retries = 30;
+			uint8_t starttime = TIMERVALUE;
+			while (retries != 0) {
+				if (ispReadFlash(address) != 0x7F) {
+					return 0;
+				};
+	
+				if ((uint8_t) (TIMERVALUE - starttime) > CLOCK_T_320us) {
+					starttime = TIMERVALUE;
+					retries--;
+				}
 			}
-
+			return 1; /* error */
 		}
-		return 1; /* error */
+	} else {	/* S5x */
+		ispTransmit(0x40);
+		ispTransmit(address >> 8);
+		ispTransmit(address);
+		ispTransmit(data);
+		return 0;
 	}
-
 }
 
 uchar ispFlushPage(unsigned long address, uchar pollvalue) {
