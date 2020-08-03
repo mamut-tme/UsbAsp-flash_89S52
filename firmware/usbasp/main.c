@@ -136,7 +136,7 @@ usbMsgLen_t usbFunctionSetup(uchar data[8]) {
 		
 		mw_addr = (data[3] << 8) | data[2]; //address (value)
 		//data[4] LO(index) amount of bits to be transmitted
-		//data[5] //opkode HI(index)
+		//data[5] //opcode HI(index)
 		
 		mwSendData((data[5] << (data[4]-2)) | mw_addr, data[4]);
 	
@@ -205,7 +205,6 @@ usbMsgLen_t usbFunctionSetup(uchar data[8]) {
 		len = 4;
 
 	} else if (data[1] == USBASP_FUNC_READFLASH) {
-
 		if (!prog_address_newmode)
 			prog_address = (data[3] << 8) | data[2];
 
@@ -223,11 +222,11 @@ usbMsgLen_t usbFunctionSetup(uchar data[8]) {
 		len = USB_NO_MSG; /* multiple in */
 
 	} else if (data[1] == USBASP_FUNC_ENABLEPROG) {
-		replyBuffer[0] = ispEnterProgrammingMode();
+		uint8_t result = ispEnterProgrammingMode();
+		uint8_t i=0, speed;
 		
 		#ifdef AVR_SPI_SPEED_SEARCH 
-		if (replyBuffer[0] != 0){ //target don't answer
-			uint8_t i, speed;
+		if (result != 0){ //target don't answer
 			
 			if (prog_sck == USBASP_ISP_SCK_AUTO)
 				speed = USBASP_ISP_SCK_187_5;
@@ -236,15 +235,25 @@ usbMsgLen_t usbFunctionSetup(uchar data[8]) {
 			//trying lower speeds		
 			for (i = speed; i >= USBASP_ISP_SCK_2; i--){
 				ispSetSCKOption(i);
-				replyBuffer[0] = ispEnterProgrammingMode();
-				if (replyBuffer[0] == 0){
+				result = ispEnterProgrammingMode();
+				if (result == 0){
 					ispSetSCKOption(i-1);
 					break; 
 				}	
 			}
+			
 		}
+		if(data[2]==1){		/* respond with setting on which target responded */
+			if (i != 0)
+				replyBuffer[1] = i;
+			else
+				replyBuffer[1] = prog_sck;
+			len = 2;
+		}else{
 		#endif
-		len = 1;
+		len=1;
+		}
+		replyBuffer[0]=result;
 
 	} else if (data[1] == USBASP_FUNC_WRITEFLASH) {
 
