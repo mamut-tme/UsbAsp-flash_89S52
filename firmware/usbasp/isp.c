@@ -74,10 +74,6 @@ void ispSetSCKOption(uchar option) {
 			sck_spcr = (1 << SPE) | (1 << MSTR) | (1 << SPR1) | (1 << SPR0);
 			break;
 		}
-		if (chip == S5x) {		/* only soft SPI for S5x for now */
-			ispTransmit = ispTransmit_sw;	/* maybe move this section below? as independant from user setting*/
-			sck_sw_delay = 2;
-		}
 	} else {
 		ispTransmit = ispTransmit_sw;
 		switch (option) {
@@ -135,12 +131,18 @@ void ispConnect() {
 	  ISP_OUT |= (1 << ISP_RST);   /* RST high */
 	  ISP_OUT &= ~(1 << ISP_SCK);   /* SCK low */
 
+	  // not necessary on S5x MCUs
 	  /* positive reset pulse > 2 SCK (target) */
-	  ispDelay();
-	  ISP_OUT &= ~(1 << ISP_RST);    /* RST low */
-	  ispDelay();                
-	  ISP_OUT |= (1 << ISP_RST);   /* RST high */
-	  ispDelay();
+	  //ispDelay();
+	  //ISP_OUT &= ~(1 << ISP_RST);    /* RST low */
+	  //ispDelay();                
+	  //ISP_OUT |= (1 << ISP_RST);   /* RST high */
+	  //ispDelay();
+	  
+	  //instead wait, should be 64 target clock cycles:
+	  int i;
+	  for(i=0; i<4; i++)
+		ispDelay();
 	}
 	if (ispTransmit == ispTransmit_hw) {
 		spiHWenable();
@@ -242,12 +244,12 @@ uchar ispEnterProgrammingMode() {
 	
 	count=16;
 	chip=S5x;	/* routine for S5x */
-	if(ispTransmit==ispTransmit_hw){
-	  spiHWdisable();
-	  //ispTransmit=ispTransmit_5x;
-	} 
-	ispTransmit = ispTransmit_sw;
-	sck_sw_delay = 2;
+	//if(ispTransmit==ispTransmit_hw){
+	//  spiHWdisable();
+	//  //ispTransmit=ispTransmit_5x;
+	//} 
+	//ispTransmit = ispTransmit_sw;
+	//sck_sw_delay = 2;
 	ispConnect();
 	while(count--){
 		ispTransmit(0xAC);	/* different init sequence for S5x*/
@@ -320,7 +322,7 @@ uchar ispWriteFlash(unsigned long address, uchar data, uchar pollmode) {
 		if (pollmode == 0)
 			return 0;
 	
-		if (data == 0x7F) {
+		if (data == 0x7F) {		/* why 0x7F? datasheet speaks about 0xFF */
 			clockWait(15); /* wait 4,8 ms */
 			return 0;
 		} else {
