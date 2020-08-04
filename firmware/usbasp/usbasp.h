@@ -43,7 +43,6 @@
 #define USBASP_FUNC_MW_WRITE		 93
 #define USBASP_FUNC_MW_BUSY			 94
 
-
 /* USBASP capabilities */
 #define USBASP_CAP_0_TPI    0x01
 #define USBASP_CAP_2_S5x    0x01
@@ -66,7 +65,6 @@
 
 #define PROG_STATE_MW_READ		57
 #define PROG_STATE_MW_WRITE		58
-
 
 
 /* Block mode flags */

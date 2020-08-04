@@ -36,6 +36,7 @@ PATH: /usr/lib/jvm/default/bin
 PATH: /usr/bin/site_perl
 PATH: /usr/bin/vendor_perl
 PATH: /usr/bin/core_perl
+PATH: /var/lib/snapd/snap/bin
 
 
 ## ----------- ##
@@ -404,12 +405,12 @@ configure:9493: checking lex output file root
 configure:9507: result: lex.yy
 configure:9512: checking lex library
 configure:9526: gcc -o conftest -g -O2   conftest.c   >&5
-/usr/bin/ld: /tmp/ccsNKITW.o: in function `input':
-/home/marcin/usbasp/avrdude-6.3/lex.yy.c:1179: undefined reference to `yywrap'
-/usr/bin/ld: /tmp/ccsNKITW.o: in function `yylex':
-/home/marcin/usbasp/avrdude-6.3/lex.yy.c:870: undefined reference to `yywrap'
-/usr/bin/ld: /tmp/ccsNKITW.o: in function `main':
-/home/marcin/usbasp/avrdude-6.3/conftest.l:17: undefined reference to `yywrap'
+/usr/bin/ld: /tmp/cclwREmH.o: in function `input':
+/home/marcin/usbasp/UsbAsp-flash_89S52/avrdude-6.3_patch/lex.yy.c:1179: undefined reference to `yywrap'
+/usr/bin/ld: /tmp/cclwREmH.o: in function `yylex':
+/home/marcin/usbasp/UsbAsp-flash_89S52/avrdude-6.3_patch/lex.yy.c:870: undefined reference to `yywrap'
+/usr/bin/ld: /tmp/cclwREmH.o: in function `main':
+/home/marcin/usbasp/UsbAsp-flash_89S52/avrdude-6.3_patch/conftest.l:17: undefined reference to `yywrap'
 collect2: error: ld returned 1 exit status
 configure:9526: $? = 1
 configure: failed program was:
@@ -2677,8 +2678,8 @@ configure:10072: checking for libusb.h
 configure:10072: result: no
 configure:10084: checking for libusb_init in -lusb
 configure:10109: gcc -o conftest -g -O2   conftest.c -lusb  -lreadline -lncurses  >&5
-/usr/bin/ld: /tmp/ccA1C4pL.o: in function `main':
-/home/marcin/usbasp/avrdude-6.3/conftest.c:44: undefined reference to `libusb_init'
+/usr/bin/ld: /tmp/cchZEOaB.o: in function `main':
+/home/marcin/usbasp/UsbAsp-flash_89S52/avrdude-6.3_patch/conftest.c:44: undefined reference to `libusb_init'
 collect2: error: ld returned 1 exit status
 configure:10109: $? = 1
 configure: failed program was:
@@ -3321,6 +3322,7 @@ config.status:1137: creating avrdude.spec
 config.status:1137: creating Makefile
 config.status:1137: creating avrdude.conf.tmp
 config.status:1137: creating ac_cfg.h
+config.status:1318: ac_cfg.h is unchanged
 config.status:1366: executing depfiles commands
 config.status:1366: executing libtool commands
 
@@ -3581,7 +3583,7 @@ host_vendor='unknown'
 htmldir='${docdir}'
 includedir='${prefix}/include'
 infodir='${datarootdir}/info'
-install_sh='${SHELL} /home/marcin/usbasp/avrdude-6.3/install-sh'
+install_sh='${SHELL} /home/marcin/usbasp/UsbAsp-flash_89S52/avrdude-6.3_patch/install-sh'
 libdir='${exec_prefix}/lib'
 libexecdir='${exec_prefix}/libexec'
 localedir='${datarootdir}/locale'

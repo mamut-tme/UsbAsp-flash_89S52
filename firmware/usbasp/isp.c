@@ -24,6 +24,7 @@ uchar sck_spsr;
 uchar isp_hiaddr;
 
 uchar (*ispTransmit)(uchar);
+
 unsigned char chip;		/* AVR or S5x chip type */
 
 void spiHWenable() {
@@ -116,6 +117,7 @@ void ispConnect() {
 	/* all ISP pins are inputs before */
 	/* now set output pins */
 	ISP_DDR |= (1 << ISP_RST) | (1 << ISP_SCK) | (1 << ISP_MOSI);
+
 	if(chip==ATM){	/* AVR */
 		/* reset device */
 		ISP_OUT &= ~(1 << ISP_RST); /* RST low */
@@ -126,6 +128,7 @@ void ispConnect() {
 		ISP_OUT |= (1 << ISP_RST); /* RST high */
 		ispDelay();
 		ISP_OUT &= ~(1 << ISP_RST); /* RST low */
+
 	} else {	/* S5x */
 	  /* reset device reversed polarity than AVR*/
 	  ISP_OUT |= (1 << ISP_RST);   /* RST high */
@@ -139,7 +142,8 @@ void ispConnect() {
 	  //ISP_OUT |= (1 << ISP_RST);   /* RST high */
 	  //ispDelay();
 	  
-	  //instead wait, should be 64 target clock cycles:
+	  /* instead wait, should be 64 target clock cycles: 
+		 and since SCK freq should be 1/16 of F_CPU: */
 	  int i;
 	  for(i=0; i<4; i++)
 		ispDelay();
@@ -241,7 +245,6 @@ uchar ispEnterProgrammingMode() {
 			spiHWenable();
 
 	}
-	
 	count=16;
 	chip=S5x;	/* routine for S5x */
 	//if(ispTransmit==ispTransmit_hw){
@@ -265,7 +268,6 @@ uchar ispEnterProgrammingMode() {
 		ISP_OUT&= ~(1<<ISP_SCK);    /* SCK low */
 		ispDelay();  
 	}
-
 	return 1; /* error: device dosn't answer */
 }
 
@@ -290,11 +292,12 @@ static void ispUpdateExtended(unsigned long address)
 uchar ispReadFlash(unsigned long address) {
 
 	ispUpdateExtended(address);
-	
+
 	if(chip==ATM){	/* AVR */
 		ispTransmit(0x20 | ((address & 1) << 3));
 		ispTransmit(address >> 9);
 		ispTransmit(address >> 1);
+
 	} else {	/* S51x different bit arrangement */
 		ispTransmit(0x20);
 		ispTransmit(address>>8);
@@ -346,6 +349,7 @@ uchar ispWriteFlash(unsigned long address, uchar data, uchar pollmode) {
 		ispTransmit(address >> 8);
 		ispTransmit(address);
 		ispTransmit(data);
+
 		return 0;
 	}
 }
