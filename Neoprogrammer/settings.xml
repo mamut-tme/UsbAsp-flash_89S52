@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+  <locale lang="en"/>
+  <options hw="usbasp" CHIP="" clear="0" skipff="1" unprot="0" verify="1" spi_speed="3Mhz" blankcheck="0" LoadLastDev="1"/>
+  <Windows DPI="96" Top="9" Left="178" LogH="97" Width="878" Height="619"/>
+</settings>
